@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>HTML5 Canvas</h1>
+<h2>The scale() Method</h2>
+
+<canvas id="myCanvas" width="1200" height="1200" style="border:1px solid grey"></canvas>
+<img id="hive" src="images/hive_piece.png" />
+
+<script>
+const c = document.getElementById("myCanvas");
+const ctx = c.getContext("2d");
+const width = 1600;
+const height = 1600;
+
+//Draw labels
+ctx.font = "20px Arial";
+ctx.fillText("EXPERIMENTS", 150, 20);
+ctx.fillText("GARDEN BEDS", 154, 270);
+
+//Draw experiments
+ctx.scale(1, 1);
+const img = document.getElementById("hive");
+
+let x=60;
+let y=40;
+for(j=0;j<6;j++) {
+	for(i=0;i<8;i++) {
+		if(j%2==0) {
+			ctx.drawImage(img, i*42+x, j*32+y);
+		} else {
+			ctx.drawImage(img, i*42+21+x, j*32+y);
+		}
+	}
+}
+
+//Draw beds
+ctx.scale(Math.floor(width/400), Math.floor(height/400));
+x=0;
+y=72;
+while(y<127) {
+	while(x<110) {
+		for(j=0;j<6;j++) {
+			for(i=0;i<8;i++) {
+				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
+				ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";
+				ctx.strokeRect(x+i, y+j, 1, 1);
+				console.log(x, y);
+			}
+		}
+		x=x+10;
+	}
+	x=0;
+	y=y+8;
+}
+	
+
+/*	
+ctx.scale(3, 3);
+for(i=0;i<11*8;i++) {
+	for(j=0;j<9*6;j++) {
+	    ctx.strokeStyle = "rgb(" + Math.floor(Math.random()*255) + ",0,0)";
+		ctx.strokeRect(i, j, 1, 1);
+	}
+}
+*/
+</script> 
+
+</body>
+</html>
