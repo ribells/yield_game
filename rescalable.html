@@ -1,16 +1,42 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>HTML5 Canvas</h1>
-<h2>The scale() Method</h2>
+<head>
+<style>
+	h2 {
+		font-family:Verdana, Arial, Helvetica, sans-serif;
+		font-size:14px;
+	}
+	td {
+		width:300px;
+	}
+	.c {
+		width:100px;
+		text-align:center;
+	}
+</style>
+<meta charset="UTF-8">
+<title>Food Yield Academy</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/knockout-3.0.0.js"></script>
 
+<script src="lab.js"></script>
+<script src="plant.js"></script>
+<script src="crop.js"></script>
+<script src="dem.js"></script>
+<script src="seed.js"></script>
+<script src="light.js"></script>
+<script src="water.js"></script>
+<script src="soil.js"></script>
+<script src="game.js"></script>
+</head>
+<body>
 <canvas id="myCanvas" width="1200" height="1200" style="border:1px solid grey"></canvas>
 <img id="hive" src="images/hive_piece.png" />
 
 <script>
 const c = document.getElementById("myCanvas");
 const ctx = c.getContext("2d");
-const width = 1600;
+var width = 1600;
 const height = 1600;
 
 //Draw labels
@@ -45,7 +71,7 @@ while(y<127) {
 				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
 				ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";
 				ctx.strokeRect(x+i, y+j, 1, 1);
-				console.log(x, y);
+				//console.log(x, y);
 			}
 		}
 		x=x+10;
@@ -53,17 +79,78 @@ while(y<127) {
 	x=0;
 	y=y+8;
 }
-	
 
-/*	
-ctx.scale(3, 3);
-for(i=0;i<11*8;i++) {
-	for(j=0;j<9*6;j++) {
-	    ctx.strokeStyle = "rgb(" + Math.floor(Math.random()*255) + ",0,0)";
-		ctx.strokeRect(i, j, 1, 1);
+//Draw Fields
+x=140;
+y=10;
+while(y<125) {
+	while(x<250) {
+		for(j=0;j<6;j++) {
+			for(i=0;i<8;i++) {
+				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
+				ctx.fillStyle = "rgb(" + 0 + "," + shade + "," + 0 + ")";
+				ctx.strokeStyle = "rgb(" + 255 + "," + 255 + "," + 255 + ")";
+				ctx.fillRect(x+i*3, y+j*3, 3, 3);
+				ctx.strokeRect(x+i*3, y+j*3, 3, 3);
+				//console.log(x, y);
+			}
+		}
+		x=x+18;
 	}
+	x=140;
+	y=y+18;
 }
-*/
+	
+//Draw genomes
+y = 600;
+x = 0;
+ctx.scale(1/Math.floor(width/400), 1/Math.floor(height/400));
+var h_spacing = 0;
+var v_spacing = 0;
+ctx.fillStyle = "rgb(160,160,160)";
+ctx.rect(0, y, 1440, 240);
+ctx.fill();
+for(i=0; i<seed.length; i++) {
+	if (seed[i][0] == 0) {
+		ctx.fillStyle = "rgba(160,255,0,1.0)";
+	} else if (seed[i][0] == 1) {
+		ctx.fillStyle = "rgba(60,255,0,1.0)";
+	} else if (seed[i][0] == 2) {
+		ctx.fillStyle = "rgba(20,255,20,1.0)";
+	} else if (seed[i][0] == 3) {
+		ctx.fillStyle = "rgba(0,255,60,1.0)";
+	} else if (seed[i][0] == 4) {
+		ctx.fillStyle = "rgba(0,255,160,1.0)";
+	}
+	width=Math.floor(100);
+	var total_value=seed[i][3]*3;
+	for(j=4;j<14;j++) {
+		total_value += seed[i][j];
+	}
+	ctx.beginPath();
+	ctx.rect(Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 41 + h_spacing, y+16, 4, 4);
+	ctx.fill();
+	ctx.fillStyle = "rgba(0,0,0,1.0)";
+	ctx.font = "10px Arial";
+	ctx.fillText("" + seed[i][1], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+40);
+	ctx.fillText("" + seed[i][14], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+54);
+	var y_start=664;
+	for(j=4;j<14;j++) {
+		ctx.beginPath();
+		if(j%2==0) {
+			ctx.fillStyle = "rgba(255,255,255,1.0)";
+		} else {
+			ctx.fillStyle = "rgba(0,0,0,1.0)";
+		}
+		ctx.rect(Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y_start, 4, Math.floor(160.0*seed[i][j]/total_value));
+		y_start=y_start+Math.floor(160.0*seed[i][j]/total_value);
+		ctx.fill();
+	}
+	ctx.beginPath();
+	ctx.fillStyle = "rgba(120,120,120,1.0)";
+	ctx.rect(Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y_start, 4, Math.floor(300.0*seed[i][3]));
+	ctx.fill();
+}
 </script> 
 
 </body>
