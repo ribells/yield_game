@@ -31,6 +31,7 @@
 </head>
 <body>
 <canvas id="myCanvas" width="1200" height="1200" style="border:1px solid grey"></canvas>
+<canvas id="dem" width="668" height="480" style="position:absolute;top:86px;left:600px;background-color:transparent;z-index:10"></canvas>
 <img id="hive" src="images/hive_piece.png" />
 
 <script>
@@ -66,9 +67,9 @@ for(j=0;j<6;j++) {
 ctx.scale(Math.floor(width/400), Math.floor(height/400));
 x=0;
 y=72;
-while(y<127) {
+while(y<130) {
 	while(x<110) {
-		for(j=0;j<6;j++) {
+		for(j=0;j<5;j++) {
 			for(i=0;i<8;i++) {
 				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
 				ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";
@@ -79,21 +80,24 @@ while(y<127) {
 		x=x+10;
 	}
 	x=0;
-	y=y+8;
+	y=y+7;
 }
 
 //Draw Fields
 x=140;
 y=10;
+cnt=0;
 while(y<125) {
 	while(x<250) {
-		for(j=0;j<6;j++) {
-			for(i=0;i<8;i++) {
+		for(i=0;i<8;i++) {
+			for(j=0;j<6;j++) {
 				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
 				ctx.fillStyle = "rgb(" + 0 + "," + shade + "," + 0 + ")";
 				ctx.strokeStyle = "rgb(" + 255 + "," + 255 + "," + 255 + ")";
-				ctx.fillRect(x+i*3, y+j*3, 3, 3);
-				ctx.strokeRect(x+i*3, y+j*3, 3, 3);
+				if(dem[10*cnt++] < 210) {
+					ctx.fillRect(x+i*3, y+j*3, 3, 3);
+					ctx.strokeRect(x+i*3, y+j*3, 3, 3);
+				}
 				//console.log(x, y);
 			}
 		}
