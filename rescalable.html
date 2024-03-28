@@ -31,8 +31,8 @@
 </head>
 <body>
 <canvas id="myCanvas" width="1200" height="1200" style="border:1px solid grey"></canvas>
-<canvas id="dem" width="668" height="480" style="position:absolute;top:86px;left:600px;background-color:transparent;z-index:10"></canvas>
-<img id="hive" src="images/hive_piece.png" />
+<img id="hive" src="images/hive_piece.png" style="visibility:hidden" />
+<img id="heightmap" src="images/terrain.png" style="visibility:hidden" />
 
 <script>
 const c = document.getElementById("myCanvas");
@@ -49,6 +49,19 @@ ctx.fillText("SEED GENOMES", 154, 580);
 
 //Draw experiments
 ctx.scale(1, 1);
+
+const img2 = document.getElementById("heightmap");
+ctx.drawImage(img2, 460, 40);
+let shade = 50;
+dem = [];
+for(j=0;j<45;j++) {
+	let row = [];
+	for(i=0;i<64;i++) {
+		row.push(ctx.getImageData(460+i*3, 40+j*3, 1, 1).data[0]);
+	}
+	dem.push(row);
+}
+
 const img = document.getElementById("hive");
 
 let x=60;
@@ -71,7 +84,7 @@ while(y<130) {
 	while(x<110) {
 		for(j=0;j<5;j++) {
 			for(i=0;i<8;i++) {
-				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
+				shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
 				ctx.strokeStyle = "rgb(" + shade + "," + shade + "," + shade + ")";
 				ctx.strokeRect(x+i, y+j, 1, 1);
 				//console.log(x, y);
@@ -84,27 +97,18 @@ while(y<130) {
 }
 
 //Draw Fields
-x=140;
+x=115;
 y=10;
 cnt=0;
-while(y<125) {
-	while(x<250) {
-		for(i=0;i<8;i++) {
-			for(j=0;j<6;j++) {
-				let shade = Math.floor(((x+i)%3 + (y+j)%3)*20+100);
-				ctx.fillStyle = "rgb(" + 0 + "," + shade + "," + 0 + ")";
-				ctx.strokeStyle = "rgb(" + 255 + "," + 255 + "," + 255 + ")";
-				if(dem[10*cnt++] < 210) {
-					ctx.fillRect(x+i*3, y+j*3, 3, 3);
-					ctx.strokeRect(x+i*3, y+j*3, 3, 3);
-				}
-				//console.log(x, y);
-			}
+for(j=0;j<45;j++) {
+	for(i=0;i<64;i++) {
+		if(dem[j][i] < 100) {
+			ctx.fillStyle = "rgb(" + 0 + "," + dem[j][i] + "," + 0 + ")";
+			ctx.strokeWidth = 1;
+			ctx.fillRect(x+i*3, y+j*3, 2, 2);
 		}
-		x=x+18;
+		//console.log(x, y);
 	}
-	x=140;
-	y=y+18;
 }
 	
 //Draw genomes
