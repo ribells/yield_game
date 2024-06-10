@@ -28,13 +28,67 @@
 <script src="water.js"></script>
 <script src="soil.js"></script>
 <script src="game.js"></script>
+<style>
+        /* Experiment Selector Modal Dialog Box */
+        #ex_info {position:absolute;top:0px;left:0;display:none;box-shadow: 1px 1px 1px 1px #a0a0a0;width:250px;z-index:3}
+        .w3-container {position:relative;padding:0.01em 16px}
+		.w3-modal {z-index:3;position:relative;left:0;top:0;overflow:auto;background-color:rgb(0,0,0);background-color:rgba(0,0,0,0.4)}
+		.w3-title {color:white;background-color:#404040}
+		.w3-modal-content {margin:auto;background-color:#ffffff;position:relative;padding:0;outline:0}
+		.w3-button {position:relative;left:30%;width:40%;text-align:left;padding:2px 4px;margin-top: 6px}
+		.w3-button {border:none;display:inline-block;vertical-align:right;overflow:hidden;text-decoration:none;color:white;background-color:#404040;height:36px;text-align:center;cursor:pointer;white-space:nowrap}
+		.w3-display-topright {position:absolute;right:2px;top:2px}
+		/* End Experiment Selector Modal Dialog */
+</style>
 </head>
 <body>
-<canvas id="myCanvas" width="1200" height="1200" style="border:1px solid grey"></canvas>
+<!-- Experiment Selector -->
+<div id="ex_info" class="w3-modal">
+  <div class="w3-modal-content w3-card-4">
+	<header class="w3-container w3-title">
+	  <table><tr><td>
+	  <span>EXPERIMENT INFO</span>
+	  </td><td>
+	  <span onclick="document.getElementById('ex_info').style.display='none'" 
+	  class="w3-display-topright" style="border-width:1px;border-style:solid;padding:0 4px">&times;</span>
+	  </td></tr></table>
+	</header>
+	<div class="w3-container">
+	  <p>
+		  Type: Corn<br/>
+		  Seed ID: 1<br/>
+		  Light: 0.6<br/>
+		  Water: 0.3<br/>
+		  Soil: CLAY LOAM <button>Get</button><br/>				  
+		  <br/><br/>
+		  <i>PLANT NEW SEED</i><br/>
+		  Seed: <select id="seed_choice"></select><br/>
+		  <button class="w3-button" onclick="plantSeed();">Plant</button>		  
+	  </p>
+	</div>
+  </div>
+</div>
+<!-- End Experiment Selector -->
+<canvas id="myCanvas" width="1200" height="1200" style="position:absolute;top:0;left:0;border:1px solid grey"></canvas>
 <img id="hive" src="images/hive_piece.png" style="visibility:hidden" />
+<img id="legend" src="images/legend.png" style="visibility:hidden" />
 <img id="heightmap" src="images/terrain.png" style="visibility:hidden" />
 
+<img id="cabbage" src="images/cabbage.png" style="visibility:hidden" />
+<img id="carrot" src="images/carrot.png" style="visibility:hidden" />
+<img id="corn" src="images/corn.png" style="visibility:hidden" />
+<img id="rice" src="images/rice.png" style="visibility:hidden" />
+<img id="wheat" src="images/wheat.png" style="visibility:hidden" />
+
 <script>
+var experiment = [
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0]
+]
 const c = document.getElementById("myCanvas");
 const ctx = c.getContext("2d");
 var width = 1600;
@@ -42,7 +96,6 @@ const height = 1600;
 
 //Draw labels
 ctx.font = "20px Arial";
-ctx.fillText("EXPERIMENTS", 150, 20);
 ctx.fillText("GARDEN BEDS", 154, 270);
 ctx.fillText("FIELDS", 800, 20);
 ctx.fillText("SEED GENOMES", 154, 580);
@@ -62,12 +115,26 @@ for(j=0;j<45;j++) {
 	dem.push(row);
 }
 
-const img = document.getElementById("hive");
+let img = document.getElementById("hive");
+const img_b = document.getElementById("legend");
 
+//Draw the Experiment Zone
+const img_e = [
+    document.getElementById("hive"),
+	document.getElementById("cabbage"),
+	document.getElementById("carrot"),
+	document.getElementById("corn"),
+	document.getElementById("rice"),
+	document.getElementById("wheat")
+];
+
+ctx.drawImage(img_b, 0, 0);
+ctx.fillText("EXPERIMENTS", 150, 20);
 let x=60;
 let y=40;
 for(j=0;j<6;j++) {
 	for(i=0;i<8;i++) {
+		img = img_e[experiment[j][i]];
 		if(j%2==0) {
 			ctx.drawImage(img, i*42+x, j*32+y);
 		} else {
@@ -142,8 +209,9 @@ for(i=0; i<seed.length; i++) {
 	ctx.fill();
 	ctx.fillStyle = "rgba(0,0,0,1.0)";
 	ctx.font = "10px Arial";
-	ctx.fillText("" + seed[i][1], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+40);
-	ctx.fillText("" + seed[i][14], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+54);
+	ctx.fillText("" + i, Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+36);
+	ctx.fillText("" + seed[i][1], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+47);
+	ctx.fillText("" + seed[i][14], Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y+56);
 	var y_start=664;
 	for(j=4;j<14;j++) {
 		ctx.beginPath();
@@ -161,6 +229,51 @@ for(i=0; i<seed.length; i++) {
 	ctx.rect(Math.floor(seed[i][0]*80.0) + seed[i][1] * width + 40 + h_spacing, y_start, 4, Math.floor(300.0*seed[i][3]));
 	ctx.fill();
 }
+
+//Fill Seed Choices
+str = "";
+for(i=0; i<seed.length; i++) {
+	str += "<option value=" + i + ">" + i + "</option>";
+}
+document.getElementById("seed_choice").innerHTML = str;
+
+document.addEventListener('click', function(event) {
+    var cx = event.pageX,
+        cy = event.pageY;
+        
+	// Handle clicks on EXPERIMENTS
+	if (cy > 50 && cy < 256 && cx > 73 && cx < 431) {
+		j = Math.floor((cy-50) / 32);
+		if(Math.floor((cy-50) / 32) % 2 == 0) {
+			i = Math.floor((cx-73) / 42);
+		} else {
+			i = Math.floor((cx-94) / 42);
+		}
+		
+		//Open the experiment crop window to select crop seeds
+		document.getElementById("ex_info").style.display = "block";
+		document.getElementById("ex_info").style.top = (cy+5) + "px";
+		document.getElementById("ex_info").style.left = (cx+5) + "px";
+	}
+}, false);
+
+function plantSeed() {	
+	var e = document.getElementById("seed_choice");
+	var value = e.value;
+	var choice = parseInt(e.options[e.selectedIndex].text);
+
+	experiment[j][i] = seed[choice][0];
+
+	//Draw the experiment
+	img = img_e[experiment[j][i]+1];
+	if(j%2==0) {
+		ctx.drawImage(img, i*42+60, j*32+38);
+	} else {
+		ctx.drawImage(img, i*42+81+x, j*32+38);
+	}
+	document.getElementById('ex_info').style.display="none";
+}
+
 </script> 
 
 </body>
