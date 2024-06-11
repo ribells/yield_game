@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+h2 {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:14px;
+}
+td {
+	width:300px;
+}
+.c {
+	width:100px;
+	text-align:center;
+}
+</style>
+<meta charset="UTF-8">
+<title>Food Yield Academy</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="lab.js"></script>
+<script src="plant.js"></script>
+<script src="crop.js"></script>
+<script src="dem.js"></script>
+<script src="seed.js"></script>
+<script src="light.js"></script>
+<script src="water.js"></script>
+<script src="soil.js"></script>
+<script src="game.js"></script>
+<script type="text/javascript" src="scripts/knockout-3.0.0.js"></script>
+<script>
+var games = [];
+var experiments = [];
+var plants = [];
+var crops = [];
+var which_one = -1;
+var which_lat = -1;
+var which_lon = -1;
+function showGame(new_lab, chosen) {
+	games.push(new Game("" + "terrain.jpg", new_lab, chosen));
+	experiments = new_lab;
+	//Create visual experiments
+	for(i=0;i<games.length;i++) {
+		new Lab(new_lab).drawLab('mycanvas');
+	}
+}
+function showGame2(new_plant, chosen) {
+	//Create visual plants
+	plants = new_plant;
+	for(i=0;i<games.length;i++) {
+		new Plant(new_plant).drawPlant('mycanvas');
+	}
+}
+function showGame3(new_crop, chosen) {
+	//Create visual crops
+	crops = new_crop;
+	for(i=0;i<games.length;i++) {
+		new Crop(new_crop).drawCrop('mycanvas');
+	}
+	startGame();
+}
+function interact(e) {
+ 	var evt = e ? e:this.event;
+	var doc = document.documentElement, body = document.body;
+	var scrleft = (doc && doc.scrollLeft || body && body.scrollLeft || 0);
+	var scrtop = (doc && doc.scrollTop  || body && body.scrollTop  || 0);
+    var x = evt.clientX - this.clientLeft + scrleft;
+    var y = evt.clientY - this.clientTop + scrtop;
+    which_one = -1;
+    //Check Lab Clicks
+    if(x>20 && x<545 && y>30 && y<323) {
+		if(Math.floor(y/34)%2==0) {
+			which_one = Math.floor((y-54)/33.6) + Math.floor((x-129)/40)*8;
+		} else {
+			which_one = Math.floor((y-54)/33.6) + Math.floor((x-149)/40)*8;
+		}
+		var ef = document.getElementById('exp_frame');
+		ef.innerHTML = createLabDialogue(which_one);
+		var ef = document.getElementById('exp_frame');
+		document.getElementById('lab_exp').value = "-1";
+		ef.style.left = (x+40) + "px";
+		ef.style.top = (y-15) + "px";
+		ef.style.visibility = "visible";
+	//Check Garden Clicks
+	} else if(x>20 && x<570 && y>160 && y<620) {
+		which_one = -1;
+		which_one = checkLightClicks(x-9, y-28);
+		if(which_one==-1) {
+			which_one = checkWaterClicks(x-9, y-28);
+		}
+		if(which_one==-1) {
+			which_one = checkSoilClicks(x-9, y-34);
+		}
+		if(which_one==-1) {
+			which_one = Math.floor((y-366)/3) + Math.floor((x-20)/10)*60;
+			var ef = document.getElementById('exp_frame');
+			ef.innerHTML = createSeedDialogue(which_one);
+			var et = document.getElementById('seed_type');
+			document.getElementById('seed_exp').value = "-1";
+			ef.style.left = (x-20) + "px";
+			ef.style.top = (y-82) + "px";
+			ef.style.visibility = "visible";
+		}
+	//Check Fields Clicks
+	} else if(x>589 && x<1300 && y>26 && y<620) {
+		which_lon = Math.floor((x - 599)/6)*6;
+		which_lat = Math.floor((y - 86)/6)*6;
+		//alert(which_lon + ", " + which_lat);
+		var ef = document.getElementById('exp_frame');
+		ef.innerHTML = createCropDialogue(which_lat, which_lon);
+		var et = document.getElementById('seed_type');
+		document.getElementById('seed_exp').value = "-1";
+		ef.style.left = (x-332) + "px";
+		ef.style.top = (y-82) + "px";
+		ef.style.visibility = "visible";
+	}
+}
+function chooseExperiment() {
+	experiments[which_one][1] = document.getElementById('lab_exp').value;
+	for(i=0;i<seed.length;i++) {
+		if(seed[i][0]==parseInt(document.getElementById('seed_exp').value) && seed[i][1]==parseInt(document.getElementById('seed_det').value)) {
+			experiments[which_one][2] = i;
+		}
+		if(seed[i][0]==parseInt(document.getElementById('seed_exp').value) && seed[i][1]==parseInt(document.getElementById('seed_det2').value)) {
+			experiments[which_one][3] = i;
+		}
+	}
+	redrawALab(which_one, document.getElementById('lab_exp').value);
+	document.getElementById('exp_frame').style.visibility = "hidden";
+}
+function updatePlants() {
+	//alert(document.getElementById('plant_count').value + "" + document.getElementById('seed_exp').value);
+	seedPlants(which_one, document.getElementById('x_count').value, document.getElementById('y_count').value, seed[parseInt(document.getElementById('seed_exp').value)][0]);
+	document.getElementById('exp_frame').style.visibility = "hidden";
+}
+function updateCrops() {
+	plantCrops(which_lat, which_lon, document.getElementById('x_count').value, document.getElementById('y_count').value, seed[parseInt(document.getElementById('seed_exp').value)][0]);
+	document.getElementById('exp_frame').style.visibility = "hidden";
+}
+function printPlants() {
+	var plant_str = "";
+	for(i=0;i<plants.length;i++) {
+		plant_str += "[" + plants[i][0] + "," + plants[i][1] + "," + plants[i][2] + "," + 0 + "],<br/>";
+	}
+	document.getElementById('plant_output').innerHTML = plant_str;
+}
+</script>
+</head>
+<body style="background-color:#e1e1e1">
+<div id="exp_frame" style="position:absolute;top:200px;left:40px;z-index:200;padding:12px;background-color:transparent;font-family:Verdana, Arial, sans-serif;font-size:12px;visibility:hidden"></div>
+<img width="668" height="480" style="position:absolute;top:86px;left:600px;z-index:2;display:block;" src="terrain.png" />
+<img style="position:absolute;top:30px;left:20px;z-index:1;display:block;" src="background.png" />
+	<button type="button" style="position:absolute;top:0px;left:20px;background: url('images/level.png') no-repeat scroll 0 0 transparent;height:32px;padding-bottom:2px;width: 96px;background-position:0 -3px;" onclick="createLevelDialogue();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+<form data-bind="submit: fullSearch">
+	<button type="submit" style="position:absolute;top:0px;left:120px;background: url('images/start.png') no-repeat scroll 0 0 transparent;height:32px;padding-bottom:2px;width: 96px;background-position:0 -3px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+</form>
+<canvas id="dem" width="668" height="480" style="position:absolute;top:86px;left:600px;background-color:transparent;z-index:10"></canvas>
+<canvas id="mycanvas" width="1456" height="1000" style="position:absolute;top:26px;background-color:transparent;z-index:20;display:block"></canvas>
+<p id="plant_output" style="position:absolute;top:1000px;left:20px;"><p>
+<img id="corn" src="images/corn.png" style="position:absolute;top:1000px;left:20px;" />
+<img id="vegetable" src="images/vegetable.png" style="position:absolute;top:1000px;left:20px;" />
+<img id="root" src="images/root.png" style="position:absolute;top:1000px;left:20px;" />
+<img id="rice" src="images/rice.png" style="position:absolute;top:1000px;left:20px;" />
+<img id="wheat" src="images/wheat.png" style="position:absolute;top:1000px;left:20px;" />
+<img id="hive" src="images/hive_piece.png" style="position:absolute;top:1000px;left:20px;" />
+<script>
+/*
+	for(i=0;i<dem.length;i++) {
+		var c = document.getElementById("dem");
+		var ctx = c.getContext("2d");
+		//ctx.fillStyle = "rgb(" + Math.abs(dem[i]) + ",0,0)";
+		if (i < dem.length-668) {
+			ctx.strokeStyle = "rgb(" + Math.abs(255-Math.floor((dem[i]+dem[i+668])/2.0)) + "," + Math.abs(255-Math.floor(dem[i])) + "," + Math.abs(255-Math.floor(dem[i])) + ")";
+		} else {
+			ctx.strokeStyle = "rgb(" + Math.abs(255-Math.floor(dem[i])) + "," + Math.abs(255-Math.floor(dem[i])) + "," + Math.abs(255-Math.floor(dem[i])) + ")";
+		}
+		ctx.beginPath();
+		ctx.rect((i%668) * 1, Math.floor(i/668), 1, 1);
+		ctx.stroke();
+	}
+*/
+//drawLights();
+//drawWaters();
+//drawSoils();
+</script>
+<script type="text/javascript" src="scripts/play.js"></script>
+</body>
+</html>
